@@ -21,7 +21,7 @@ Execute the models by running:
 ./DREAM
 ```
 
-Note: The size of the DREAM model has been reduced, so it can be executed on most common processors.
+Note: The size of the DREM model has been reduced, so it can be executed on most common processors.
 
 ## Dependencies
 
