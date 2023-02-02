@@ -47,9 +47,9 @@ public:
                                lsBooleanOperationEnum::INTERSECT)
           .apply();
 
-      // auto mesh = lsSmartPointer<lsMesh>::New();
+      // auto mesh = lsSmartPointer<lsMesh<NumericType>>::New();
       // lsToMesh<T, D>(mask, mesh).apply();
-      // lsVTKWriter(mesh, "Plane.vtk").apply();
+      // lsVTKWriter(mesh, "Plane.vtp").apply();
 
       auto maskHole = lsSmartPointer<lsDomain<T, D>>::New(grid);
 
@@ -77,7 +77,7 @@ public:
           .apply();
 
       // lsToSurfaceMesh<T, D>(mask, mesh).apply();
-      // lsVTKWriter(mesh, "Mask.vtk").apply();
+      // lsVTKWriter(mesh, "Mask.vtp").apply();
 
       // make substrate
       lsBooleanOperation<T, D>(maskBottom, lsBooleanOperationEnum::INVERT)

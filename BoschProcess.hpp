@@ -34,7 +34,7 @@ template <class T, int D> class BoschProcess {
     const double &x = processData.taperRatio;
     const double frac = (1 - x) / (1 + x);
     return processData.depthPerCycle / (1 + x) *
-           (1 - std::pow(frac, processData.numTaperCycles-1)) / (1 - frac);
+           (1 - std::pow(frac, processData.numTaperCycles - 1)) / (1 - frac);
   }
 
 public:
@@ -147,11 +147,11 @@ public:
 
 #ifndef NDEBUG
     {
-      auto mesh = lsSmartPointer<lsMesh>::New();
+      auto mesh = lsSmartPointer<lsMesh<T>>::New();
       // lsToMesh<T, D>(substrate, mesh).apply();
-      // lsVTKWriter(mesh, "points-0.vtk").apply();
+      // lsVTKWriter(mesh, "points-0.vtp").apply();
       lsToSurfaceMesh<T, D>(substrate, mesh).apply();
-      lsVTKWriter(mesh, "DEBUG_BoschProcess_0.vtk").apply();
+      lsVTKWriter(mesh, "DEBUG_BoschProcess_0.vtp").apply();
       auto writer = lsWriteVisualizationMesh<T, D>();
       writer.insertNextLevelSet(mask);
       writer.insertNextLevelSet(substrate);
@@ -172,11 +172,11 @@ public:
 #ifndef NDEBUG
     {
       // substrate->print();
-      auto mesh = lsSmartPointer<lsMesh>::New();
+      auto mesh = lsSmartPointer<lsMesh<T>>::New();
       lsToSurfaceMesh<T, D>(substrate, mesh).apply();
-      lsVTKWriter(mesh, "DEBUG_BoschProcess_1.vtk").apply();
+      lsVTKWriter(mesh, "DEBUG_BoschProcess_1.vtp").apply();
       // lsToMesh<T, D>(substrate, mesh).apply();
-      // lsVTKWriter(mesh, "points-1.vtk").apply();
+      // lsVTKWriter(mesh, "points-1.vtp").apply();
       auto writer = lsWriteVisualizationMesh<T, D>();
       writer.insertNextLevelSet(mask);
       writer.insertNextLevelSet(substrate);

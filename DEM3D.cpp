@@ -1,5 +1,5 @@
-#include <iostream>
 #include <chrono>
+#include <iostream>
 
 #include <lsBooleanOperation.hpp>
 #include <lsExpand.hpp>
@@ -51,16 +51,16 @@ int main() {
   maskCreator.apply();
 
   std::cout << "Output initial" << std::endl;
-  auto mesh = lsSmartPointer<lsMesh>::New();
+  auto mesh = lsSmartPointer<lsMesh<NumericType>>::New();
 
   //   lsToMesh<NumericType, D>(levelSet, mesh).apply();
-  //   lsVTKWriter(mesh, "Surface_i_p.vtk").apply();
+  //   lsVTKWriter(mesh, "Surface_i_p.vtp").apply();
   lsToSurfaceMesh<NumericType, D>(levelSet, mesh).apply();
-  lsVTKWriter(mesh, "Surface_i.vtk").apply();
+  lsVTKWriter(mesh, "Surface_i.vtp").apply();
   //   lsToMesh<NumericType, D>(mask, mesh).apply();
-  //   lsVTKWriter(mesh, "Surface_m_p.vtk").apply();
+  //   lsVTKWriter(mesh, "Surface_m_p.vtp").apply();
   lsToSurfaceMesh<NumericType, D>(mask, mesh).apply();
-  lsVTKWriter(mesh, "Surface_m.vtk").apply();
+  lsVTKWriter(mesh, "Surface_m.vtp").apply();
 
   NumericType bottomFraction = 0.7;
   NumericType etchRate = -1.86;
@@ -77,14 +77,19 @@ int main() {
   auto start = std::chrono::high_resolution_clock::now();
   processKernel.apply();
   auto stop = std::chrono::high_resolution_clock::now();
-  std::cout << "Geometric advect took: " << std::chrono::duration_cast<std::chrono::milliseconds>(stop - start).count() << " ms" << std::endl;
-  std::cout << "Final structure has " << levelSet->getNumberOfPoints() << " LS points" << std::endl;
+  std::cout << "Geometric advect took: "
+            << std::chrono::duration_cast<std::chrono::milliseconds>(stop -
+                                                                     start)
+                   .count()
+            << " ms" << std::endl;
+  std::cout << "Final structure has " << levelSet->getNumberOfPoints()
+            << " LS points" << std::endl;
 
   // levelSet->print();
   lsToSurfaceMesh<NumericType, D>(levelSet, mesh).apply();
-  lsVTKWriter(mesh, "surface.vtk").apply();
+  lsVTKWriter(mesh, "surface.vtp").apply();
   // lsToMesh<NumericType, D>(levelSet, mesh).apply();
-  // lsVTKWriter(mesh, "points-1.vtk").apply();
+  // lsVTKWriter(mesh, "points-1.vtp").apply();
 
   std::cout << "Making volume output...(this may take a while)" << std::endl;
 

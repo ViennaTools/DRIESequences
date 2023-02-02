@@ -12,8 +12,8 @@
 #include <lsWriteVisualizationMesh.hpp>
 
 #include "BoschProcess.hpp"
-#include "PillarMask.hpp"
 #include "MakeMask.hpp"
+#include "PillarMask.hpp"
 
 int main() {
   omp_set_num_threads(32);
@@ -47,15 +47,15 @@ int main() {
       bounds, boundaryCons, gridDelta);
 
   std::array<NumericType, 3> maskOrigin = {};
-  
-  if constexpr(D == 2) {
+
+  if constexpr (D == 2) {
     MakeMask<NumericType, D> maskCreator(levelSet, mask);
     maskCreator.setMaskOrigin(maskOrigin);
     maskCreator.setMaskRadius(maskRadius);
     maskCreator.apply();
   }
 
-  if constexpr(D == 3) {
+  if constexpr (D == 3) {
     PillarMask<NumericType, D> maskCreator(levelSet, mask);
     maskCreator.setMaskOrigin(maskOrigin);
     maskCreator.setMaskRadius(maskRadius);
@@ -64,16 +64,16 @@ int main() {
   }
 
   std::cout << "Output initial" << std::endl;
-  auto mesh = lsSmartPointer<lsMesh>::New();
+  auto mesh = lsSmartPointer<lsMesh<NumericType>>::New();
 
   //   lsToMesh<NumericType, D>(levelSet, mesh).apply();
-  //   lsVTKWriter(mesh, "Surface_i_p.vtk").apply();
+  //   lsVTKWriter(mesh, "Surface_i_p.vtp").apply();
   lsToSurfaceMesh<NumericType, D>(levelSet, mesh).apply();
-  lsVTKWriter(mesh, "Surface_i.vtk").apply();
+  lsVTKWriter(mesh, "Surface_i.vtp").apply();
   //   lsToMesh<NumericType, D>(mask, mesh).apply();
-  //   lsVTKWriter(mesh, "Surface_m_p.vtk").apply();
+  //   lsVTKWriter(mesh, "Surface_m_p.vtp").apply();
   lsToSurfaceMesh<NumericType, D>(mask, mesh).apply();
-  lsVTKWriter(mesh, "Surface_m.vtk").apply();
+  lsVTKWriter(mesh, "Surface_m.vtp").apply();
 
   // Take average from etch rate measurements in Fig6.c from Chang2018
   NumericType etchRate = -0.25;
@@ -81,7 +81,8 @@ int main() {
   BoschProcess<NumericType, D> processKernel;
   processKernel.setMask(mask);
   processKernel.setNumCycles(80);
-  processKernel.setIsotropicRate(etchRate * 0.6); // * 1.2 / 2 because it is a radius
+  processKernel.setIsotropicRate(etchRate *
+                                 0.6); // * 1.2 / 2 because it is a radius
   processKernel.setCycleEtchDepth(etchRate);
   processKernel.setStartWidth(2 * maskRadius);
 
@@ -97,17 +98,17 @@ int main() {
   auto stop = std::chrono::high_resolution_clock::now();
   std::cout << "Geometric advect took: "
             << std::chrono::duration_cast<std::chrono::milliseconds>(stop -
-                                                                      start)
-                    .count()
+                                                                     start)
+                   .count()
             << " ms" << std::endl;
   std::cout << "Final structure has " << levelSet->getNumberOfPoints()
             << " LS points" << std::endl;
 
   // levelSet->print();
   lsToSurfaceMesh<NumericType, D>(levelSet, mesh).apply();
-  lsVTKWriter(mesh, "surface.vtk").apply();
+  lsVTKWriter(mesh, "surface.vtp").apply();
   lsToMesh<NumericType, D>(levelSet, mesh).apply();
-  lsVTKWriter(mesh, "points-1.vtk").apply();
+  lsVTKWriter(mesh, "points-1.vtp").apply();
 
   std::cout << "Making volume output..." << std::endl;
 
@@ -117,7 +118,6 @@ int main() {
   volumeMeshing->insertNextLevelSet(levelSet);
   volumeMeshing->setFileName("bosch");
   volumeMeshing->apply();
-  
 
   return 0;
 }

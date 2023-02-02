@@ -2,13 +2,18 @@
 
 This repository contains geometric models for several different DRIE processes.
 
+## Dependencies
+
+* [ViennaLS](https://github.com/ViennaTools/viennals)
+
 ## Usage
 
-Compile all models by issuing:
+The CMake configuration automatically checks if ViennaLS is installed. If CMake is unable to find it, the dependency will be built from source with the _buildDependencies_ target.
 
 ```bash
 mkdir build && cd build
-cmake -DCMAKE_BUILD_TYPE=Release ..
+cmake .. -DCMAKE_INSTALL_PREFIX=/path/to/your/ViennaLS/install/
+make buildDependencies # this will install all dependencies and might take a while
 make
 ```
 
@@ -23,6 +28,3 @@ Execute the models by running:
 
 Note: The size of the DREM model has been reduced, so it can be executed on most common processors.
 
-## Dependencies
-
-The dependencies are included in the folder ViennaTools, so no additional setup is necessary. However, the dependencies versions are frozen to their respective versions and do not receive updates and fixes.

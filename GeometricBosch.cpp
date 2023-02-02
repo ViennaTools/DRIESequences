@@ -50,16 +50,16 @@ int main() {
   maskCreator.apply();
 
   std::cout << "Output initial" << std::endl;
-  auto mesh = lsSmartPointer<lsMesh>::New();
+  auto mesh = lsSmartPointer<lsMesh<NumericType>>::New();
 
   //   lsToMesh<NumericType, D>(levelSet, mesh).apply();
-  //   lsVTKWriter(mesh, "Surface_i_p.vtk").apply();
+  //   lsVTKWriter(mesh, "Surface_i_p.vtp").apply();
   lsToSurfaceMesh<NumericType, D>(levelSet, mesh).apply();
-  lsVTKWriter(mesh, "Surface_i.vtk").apply();
+  lsVTKWriter(mesh, "Surface_i.vtp").apply();
   //   lsToMesh<NumericType, D>(mask, mesh).apply();
-  //   lsVTKWriter(mesh, "Surface_m_p.vtk").apply();
+  //   lsVTKWriter(mesh, "Surface_m_p.vtp").apply();
   lsToSurfaceMesh<NumericType, D>(mask, mesh).apply();
-  lsVTKWriter(mesh, "Surface_m.vtk").apply();
+  lsVTKWriter(mesh, "Surface_m.vtp").apply();
 
   NumericType bottomFraction = 0.2;
   NumericType etchRate = -2.0;
@@ -76,9 +76,9 @@ int main() {
 
   // levelSet->print();
   lsToSurfaceMesh<NumericType, D>(levelSet, mesh).apply();
-  lsVTKWriter(mesh, "surface.vtk").apply();
+  lsVTKWriter(mesh, "surface.vtp").apply();
   // lsToMesh<NumericType, D>(levelSet, mesh).apply();
-  // lsVTKWriter(mesh, "points-1.vtk").apply();
+  // lsVTKWriter(mesh, "points-1.vtp").apply();
 
   std::cout << "Making volume output..." << std::endl;
 

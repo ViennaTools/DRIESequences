@@ -36,12 +36,15 @@ public:
       return data.isoRate * linearFactor;
 
     // check if within isotropic cycle of sausage sequence
-    if(data.sausageCycle > 0) {
+    if (data.sausageCycle > 0) {
       double zMod = z - scallopTop;
-      zMod = std::fmod(std::abs(zMod), std::abs(data.sausageCycle * data.depthPerCycle));
+      zMod = std::fmod(std::abs(zMod),
+                       std::abs(data.sausageCycle * data.depthPerCycle));
 
       // if z is within gridDelta/2 of sausage cycle
-      if(std::abs(zMod - std::abs((data.sausageCycle-1) * data.depthPerCycle)) < deltaO2 + numericEps) {
+      if (std::abs(zMod -
+                   std::abs((data.sausageCycle - 1) * data.depthPerCycle)) <
+          deltaO2 + numericEps) {
         // std::cout << "sausageIso: " << data.sausageEtchRate << std::endl;
         return data.sausageEtchRate;
       }
@@ -83,11 +86,12 @@ public:
         taperPerCycle((1 - data.taperRatio) / (1 + data.taperRatio)),
         logDenom(std::log(taperPerCycle)), deltaO2(data.gridDelta / 2.),
         zPrefactor(std::abs(2 * data.taperRatio / data.depthPerCycle)),
-        isoRate((data.sausageCycle > 0)?data.sausageEtchRate:data.isoRate) {}
+        isoRate((data.sausageCycle > 0) ? data.sausageEtchRate : data.isoRate) {
+  }
 
   bool isInside(const std::array<hrleCoordType, 3> &initial,
                 const std::array<hrleCoordType, 3> &candidate,
-                double eps = 0.) const {
+                double eps = 0.) const override {
     hrleCoordType dot = 0.;
     for (unsigned i = 0; i < D; ++i) {
       double tmp = candidate[i] - initial[i];
@@ -101,7 +105,8 @@ public:
   }
 
   T getSignedDistance(const std::array<hrleCoordType, 3> &initial,
-                      const std::array<hrleCoordType, 3> &candidate) const {
+                      const std::array<hrleCoordType, 3> &candidate,
+                      unsigned long initialPointId) const override {
     T currentRadius = getRadius(initial[D - 1]);
     T currentRadius2 = currentRadius * currentRadius;
 
@@ -110,7 +115,8 @@ public:
       v[i] = std::abs(candidate[i] - initial[i]);
       // subtract half of the length in x,y to generate "lens" distribution
       if (i < D - 1)
-        v[i] += data.lateralRatio * currentRadius * ((data.isoRate < 0) ? -1 : 1);
+        v[i] +=
+            data.lateralRatio * currentRadius * ((data.isoRate < 0) ? -1 : 1);
     }
 
     if (std::abs(currentRadius) <= data.gridDelta) {
@@ -136,7 +142,7 @@ public:
     return (data.isoRate > 0) ? distance : -distance;
   }
 
-  std::array<hrleCoordType, 6> getBounds() const {
+  std::array<hrleCoordType, 6> getBounds() const override {
     std::array<hrleCoordType, 6> bounds{};
     for (unsigned i = 0; i < D - 1; ++i) {
       bounds[2 * i] = -isoRate;

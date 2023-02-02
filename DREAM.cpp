@@ -67,28 +67,30 @@ int main() {
   maskCreator.apply();
 
   std::cout << "Output initial" << std::endl;
-  auto mesh = lsSmartPointer<lsMesh>::New();
+  auto mesh = lsSmartPointer<lsMesh<NumericType>>::New();
 
   //   lsToMesh<NumericType, D>(levelSet, mesh).apply();
-  //   lsVTKWriter(mesh, "Surface_i_p.vtk").apply();
+  //   lsVTKWriter(mesh, "Surface_i_p.vtp").apply();
   lsToSurfaceMesh<NumericType, D>(levelSet, mesh).apply();
-  lsVTKWriter(mesh, "Surface_i.vtk").apply();
+  lsVTKWriter(mesh, "Surface_i.vtp").apply();
   //   lsToMesh<NumericType, D>(mask, mesh).apply();
-  //   lsVTKWriter(mesh, "Surface_m_p.vtk").apply();
+  //   lsVTKWriter(mesh, "Surface_m_p.vtp").apply();
   lsToSurfaceMesh<NumericType, D>(mask, mesh).apply();
-  lsVTKWriter(mesh, "Surface_m.vtk").apply();
+  lsVTKWriter(mesh, "Surface_m.vtp").apply();
 
   // std::vector<NumericType> bottomFractions{
   //     0.13948421397683908, 0.41944813667047265, 0.6400617331600338,
   //     0.8183890372615938, 0.909870665101959};
 
   // Take average from etch rate measurements in Fig3.11d from ChangThesis2018
-  NumericType etchRate = -(46+42+44*2)/(4*119.);//-0.3697478991596639; // 0.39
+  NumericType etchRate =
+      -(46 + 42 + 44 * 2) / (4 * 119.); //-0.3697478991596639; // 0.39
 
-  // Calculate bottom fractions from model, based on ash times; last one is just maximum
+  // Calculate bottom fractions from model, based on ash times; last one is just
+  // maximum
   std::vector<NumericType> ashTimes{0., 1.0, 1.2, 1.5, 2.0, 2.5, 4.0};
   std::vector<NumericType> bottomFractions;
-  for(auto it : ashTimes) {
+  for (auto it : ashTimes) {
     bottomFractions.push_back(reFromAt(it));
     std::cout << bottomFractions.back() << std::endl;
   }
@@ -96,7 +98,8 @@ int main() {
   BoschProcess<NumericType, D> processKernel;
   processKernel.setMask(mask);
   processKernel.setNumCycles(100);
-  processKernel.setIsotropicRate(etchRate * 0.6); // * 1.2 / 2 because it is a radius
+  processKernel.setIsotropicRate(etchRate *
+                                 0.6); // * 1.2 / 2 because it is a radius
   processKernel.setCycleEtchDepth(etchRate);
   processKernel.setStartWidth(2 * maskRadius);
   processKernel.setLateralEtchRatio(0.5);
@@ -106,7 +109,6 @@ int main() {
     processKernel.setSubstrate(substrate);
     processKernel.setBottomWidth(2 * maskRadius * it);
     processKernel.setStartOfTapering(-24.5);
-
 
     std::cout << "r_e: " << it << std::endl;
     auto start = std::chrono::high_resolution_clock::now();
@@ -125,9 +127,9 @@ int main() {
     std::ostringstream out;
     out.precision(2);
     out << std::fixed << it;
-    lsVTKWriter(mesh, "surface" + out.str() + ".vtk").apply();
+    lsVTKWriter(mesh, "surface" + out.str() + ".vtp").apply();
     // lsToMesh<NumericType, D>(levelSet, mesh).apply();
-    // lsVTKWriter(mesh, "points-1.vtk").apply();
+    // lsVTKWriter(mesh, "points-1.vtp").apply();
 
     std::cout << "Making volume output..." << std::endl;
 

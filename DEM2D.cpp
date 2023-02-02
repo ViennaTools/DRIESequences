@@ -1,5 +1,5 @@
-#include <iostream>
 #include <chrono>
+#include <iostream>
 
 #include <lsBooleanOperation.hpp>
 #include <lsExpand.hpp>
@@ -19,7 +19,7 @@ int main() {
 
   constexpr int D = 2;
   typedef double NumericType;
-  double gridDelta = 0.05;//0.125;
+  double gridDelta = 0.05; // 0.125;
 
   double extent = 4;
   double bounds[2 * D] = {-extent, extent, -extent, extent};
@@ -51,23 +51,23 @@ int main() {
   maskCreator.apply();
 
   std::cout << "Output initial" << std::endl;
-  auto mesh = lsSmartPointer<lsMesh>::New();
+  auto mesh = lsSmartPointer<lsMesh<NumericType>>::New();
 
   //   lsToMesh<NumericType, D>(levelSet, mesh).apply();
-  //   lsVTKWriter(mesh, "Surface_i_p.vtk").apply();
+  //   lsVTKWriter(mesh, "Surface_i_p.vtp").apply();
   lsToSurfaceMesh<NumericType, D>(levelSet, mesh).apply();
-  lsVTKWriter(mesh, "Surface_i.vtk").apply();
+  lsVTKWriter(mesh, "Surface_i.vtp").apply();
   //   lsToMesh<NumericType, D>(mask, mesh).apply();
-  //   lsVTKWriter(mesh, "Surface_m_p.vtk").apply();
+  //   lsVTKWriter(mesh, "Surface_m_p.vtp").apply();
   lsToSurfaceMesh<NumericType, D>(mask, mesh).apply();
-  lsVTKWriter(mesh, "Surface_m.vtk").apply();
+  lsVTKWriter(mesh, "Surface_m.vtp").apply();
 
   NumericType bottomFraction = 0.3;
   NumericType etchRate = -0.98;
 
   BoschProcess<NumericType, D> processKernel(levelSet, mask);
   processKernel.setNumCycles(50);
-  processKernel.setIsotropicRate(etchRate*0.6);
+  processKernel.setIsotropicRate(etchRate * 0.6);
   processKernel.setCycleEtchDepth(etchRate);
   processKernel.setStartWidth(2 * maskRadius);
   processKernel.setBottomWidth(2 * maskRadius * bottomFraction);
@@ -79,14 +79,19 @@ int main() {
   auto start = std::chrono::high_resolution_clock::now();
   processKernel.apply();
   auto stop = std::chrono::high_resolution_clock::now();
-  std::cout << "Geometric advect took: " << std::chrono::duration_cast<std::chrono::milliseconds>(stop - start).count() << " ms" << std::endl;
-  std::cout << "Final structure has " << levelSet->getNumberOfPoints() << " LS points" << std::endl;
+  std::cout << "Geometric advect took: "
+            << std::chrono::duration_cast<std::chrono::milliseconds>(stop -
+                                                                     start)
+                   .count()
+            << " ms" << std::endl;
+  std::cout << "Final structure has " << levelSet->getNumberOfPoints()
+            << " LS points" << std::endl;
 
   // levelSet->print();
   lsToSurfaceMesh<NumericType, D>(levelSet, mesh).apply();
-  lsVTKWriter(mesh, "surface.vtk").apply();
+  lsVTKWriter(mesh, "surface.vtp").apply();
   // lsToMesh<NumericType, D>(levelSet, mesh).apply();
-  // lsVTKWriter(mesh, "points-1.vtk").apply();
+  // lsVTKWriter(mesh, "points-1.vtp").apply();
 
   // TODO REMOVE
   // return 0;
