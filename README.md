@@ -14,6 +14,7 @@ The CMake configuration automatically checks if ViennaLS is installed. If CMake 
 mkdir build && cd build
 cmake .. -DCMAKE_INSTALL_PREFIX=/path/to/your/ViennaLS/install/
 make buildDependencies # this will install all dependencies and might take a while
+cmake .. # this is only necessary if ViennaLS is installed with make buildDependencies
 make
 ```
 
