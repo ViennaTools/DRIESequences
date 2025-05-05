@@ -1,6 +1,6 @@
 #pragma once
 
-#include <lsMessage.hpp>
+#include <vcLogger.hpp>
 
 template <class FUNC> class lsBisect {
   FUNC function;
@@ -40,7 +40,7 @@ public:
     double funcA = function(a);
 
     if (funcA * function(b) > 0) {
-      lsMessage::getInstance().addError(
+      viennacore::Logger::getInstance().addError(
           "There is no sign change between lower and upper limit!");
     }
 

@@ -1,6 +1,6 @@
-cmake_minimum_required(VERSION 3.4)
+cmake_minimum_required(VERSION 3.15)
 
-project("GeometricBosch")
+project("DRIESequences")
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -18,50 +18,29 @@ if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
                                                "RelWithDebInfo")
 endif()
 
-## Enable Clang sanitizer for debug builds
-if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
-  set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -fno-omit-frame-pointer -fsanitize=address -fsanitize=thread -fsanitize=memory" CACHE STRING "")
-  set(CMAKE_EXE_LINKER_FLAGS_DEBUG "${CMAKE_EXE_LINKER_FLAGS_DEBUGS} -fno-omit-frame-pointer -fsanitize=address -fsanitize=thread -fsanitize=memory" CACHE STRING "")
-endif()
+include(cmake/cpm.cmake)
 
-# build dependencies
-set(DEPENDENCIES_DIR ${CMAKE_SOURCE_DIR}/dependencies)
+CPMFindPackage(
+  NAME ViennaLS
+  VERSION 4.3.1
+  GIT_REPOSITORY "https://github.com/ViennaTools/ViennaLS")
 
-# Include all external dependencies
-include(ExternalProject)
-add_custom_target(buildDependencies)
-add_subdirectory(external/upstream)
+SET(DEM3D "DEM3D")
+add_executable(${DEM3D} ${DEM3D}.cpp)
+target_include_directories(${DEM3D} PUBLIC ${VIENNALS_INCLUDE_DIRS})
+target_link_libraries(${DEM3D} PRIVATE ViennaTools::ViennaLS)
 
-find_package(ViennaLS  PATHS ${ViennaLS_DIR} QUIET)
+set(DEM2D "DEM2D")
+add_executable(${DEM2D} ${DEM2D}.cpp)
+target_include_directories(${DEM2D} PUBLIC ${VIENNALS_INCLUDE_DIRS})
+target_link_libraries(${DEM2D} PRIVATE ViennaTools::ViennaLS)
 
-if(ViennaLS_FOUND)
-  option(BUILD_TEST "Build unit test." OFF)
-  if(BUILD_TEST)
-    add_executable(Test Test/Test.cpp)
-    target_include_directories(Test PUBLIC ${VIENNALS_INCLUDE_DIRS})
-    target_link_libraries(Test PRIVATE ${VIENNALS_LIBRARIES})
-  endif()
+SET(DREAM "DREAM")
+add_executable(${DREAM} ${DREAM}.cpp)
+target_include_directories(${DREAM} PUBLIC ${VIENNALS_INCLUDE_DIRS})
+target_link_libraries(${DREAM} PRIVATE ViennaTools::ViennaLS)
 
-  SET(DEM3D "DEM3D")
-  add_executable(${DEM3D} ${DEM3D}.cpp)
-  target_include_directories(${DEM3D} PUBLIC ${VIENNALS_INCLUDE_DIRS})
-  target_link_libraries(${DEM3D} PRIVATE ${VIENNALS_LIBRARIES})
-
-  set(DEM2D "DEM2D")
-  add_executable(${DEM2D} ${DEM2D}.cpp)
-  target_include_directories(${DEM2D} PUBLIC ${VIENNALS_INCLUDE_DIRS})
-  target_link_libraries(${DEM2D} PRIVATE ${VIENNALS_LIBRARIES})
-
-  SET(DREAM "DREAM")
-  add_executable(${DREAM} ${DREAM}.cpp)
-  target_include_directories(${DREAM} PUBLIC ${VIENNALS_INCLUDE_DIRS})
-  target_link_libraries(${DREAM} PRIVATE ${VIENNALS_LIBRARIES})
-
-  SET(DREM3D "DREM3D")
-  add_executable(${DREM3D} ${DREM3D}.cpp)
-  target_include_directories(${DREM3D} PUBLIC ${VIENNALS_INCLUDE_DIRS})
-  target_link_libraries(${DREM3D} PRIVATE ${VIENNALS_LIBRARIES})
-else()
-  message(STATUS "ViennaLS could not be found. Please install ViennaLS first by runnig `make buildDependencies` 
-  or provide the path with `-D ViennaLS_DIR=/path/to/your/ViennaLS/install`.")      
-endif()
+SET(DREM3D "DREM3D")
+add_executable(${DREM3D} ${DREM3D}.cpp)
+target_include_directories(${DREM3D} PUBLIC ${VIENNALS_INCLUDE_DIRS})
+target_link_libraries(${DREM3D} PRIVATE ViennaTools::ViennaLS)

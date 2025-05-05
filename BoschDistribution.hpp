@@ -1,11 +1,12 @@
 #pragma once
 
+#include <hrleTypes.hpp>
 #include <lsGeometricAdvectDistributions.hpp>
 
 #include "BoschProcessData.hpp"
 
 template <class T, int D>
-class BoschDistribution : public lsGeometricAdvectDistribution<T, D> {
+class BoschDistribution : public viennals::GeometricAdvectDistribution<T, D> {
 public:
   BoschProcessDataType<T> data;
 
@@ -89,10 +90,10 @@ public:
         isoRate((data.sausageCycle > 0) ? data.sausageEtchRate : data.isoRate) {
   }
 
-  bool isInside(const std::array<hrleCoordType, 3> &initial,
-                const std::array<hrleCoordType, 3> &candidate,
+  bool isInside(const std::array<viennahrle::CoordType, 3> &initial,
+                const std::array<viennahrle::CoordType, 3> &candidate,
                 double eps = 0.) const override {
-    hrleCoordType dot = 0.;
+    viennahrle::CoordType dot = 0.;
     for (unsigned i = 0; i < D; ++i) {
       double tmp = candidate[i] - initial[i];
       dot += tmp * tmp;
@@ -104,13 +105,13 @@ public:
       return false;
   }
 
-  T getSignedDistance(const std::array<hrleCoordType, 3> &initial,
-                      const std::array<hrleCoordType, 3> &candidate,
+  T getSignedDistance(const std::array<viennahrle::CoordType, 3> &initial,
+                      const std::array<viennahrle::CoordType, 3> &candidate,
                       unsigned long initialPointId) const override {
     T currentRadius = getRadius(initial[D - 1]);
     T currentRadius2 = currentRadius * currentRadius;
 
-    std::array<hrleCoordType, 3> v = {};
+    std::array<viennahrle::CoordType, 3> v = {};
     for (unsigned i = 0; i < D; ++i) {
       v[i] = std::abs(candidate[i] - initial[i]);
       // subtract half of the length in x,y to generate "lens" distribution
@@ -142,8 +143,8 @@ public:
     return (data.isoRate > 0) ? distance : -distance;
   }
 
-  std::array<hrleCoordType, 6> getBounds() const override {
-    std::array<hrleCoordType, 6> bounds{};
+  std::array<viennahrle::CoordType, 6> getBounds() const override {
+    std::array<viennahrle::CoordType, 6> bounds{};
     for (unsigned i = 0; i < D - 1; ++i) {
       bounds[2 * i] = -isoRate;
       bounds[2 * i + 1] = isoRate;

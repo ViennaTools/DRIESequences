@@ -14,6 +14,8 @@
 #include "BoschProcess.hpp"
 #include "MakeMask.hpp"
 
+using namespace viennals;
+
 int main() {
   omp_set_num_threads(16);
 
@@ -28,18 +30,16 @@ int main() {
     bounds[5] = extent;
   }
 
-  typename lsDomain<NumericType, D>::BoundaryType boundaryCons[D];
+  BoundaryConditionEnum boundaryCons[D];
   for (unsigned i = 0; i < D - 1; ++i) {
-    boundaryCons[i] =
-        lsDomain<NumericType, D>::BoundaryType::REFLECTIVE_BOUNDARY;
+    boundaryCons[i] = BoundaryConditionEnum::REFLECTIVE_BOUNDARY;
   }
-  boundaryCons[D - 1] =
-      lsDomain<NumericType, D>::BoundaryType::INFINITE_BOUNDARY;
+  boundaryCons[D - 1] = BoundaryConditionEnum::INFINITE_BOUNDARY;
 
-  auto mask = lsSmartPointer<lsDomain<NumericType, D>>::New(
-      bounds, boundaryCons, gridDelta);
+  auto mask = SmartPointer<Domain<NumericType, D>>::New(bounds, boundaryCons,
+                                                        gridDelta);
 
-  auto levelSet = lsSmartPointer<lsDomain<NumericType, D>>::New(
+  auto levelSet = SmartPointer<Domain<NumericType, D>>::New(
       bounds, boundaryCons, gridDelta);
 
   std::array<NumericType, 3> maskOrigin = {};
@@ -51,16 +51,16 @@ int main() {
   maskCreator.apply();
 
   std::cout << "Output initial" << std::endl;
-  auto mesh = lsSmartPointer<lsMesh<NumericType>>::New();
+  auto mesh = SmartPointer<Mesh<NumericType>>::New();
 
-  //   lsToMesh<NumericType, D>(levelSet, mesh).apply();
-  //   lsVTKWriter(mesh, "Surface_i_p.vtp").apply();
-  lsToSurfaceMesh<NumericType, D>(levelSet, mesh).apply();
-  lsVTKWriter(mesh, "Surface_i.vtp").apply();
-  //   lsToMesh<NumericType, D>(mask, mesh).apply();
-  //   lsVTKWriter(mesh, "Surface_m_p.vtp").apply();
-  lsToSurfaceMesh<NumericType, D>(mask, mesh).apply();
-  lsVTKWriter(mesh, "Surface_m.vtp").apply();
+  //   ToMesh<NumericType, D>(levelSet, mesh).apply();
+  //   VTKWriter(mesh, "Surface_i_p.vtp").apply();
+  ToSurfaceMesh<NumericType, D>(levelSet, mesh).apply();
+  VTKWriter(mesh, "Surface_i.vtp").apply();
+  //   ToMesh<NumericType, D>(mask, mesh).apply();
+  //   VTKWriter(mesh, "Surface_m_p.vtp").apply();
+  ToSurfaceMesh<NumericType, D>(mask, mesh).apply();
+  VTKWriter(mesh, "Surface_m.vtp").apply();
 
   NumericType bottomFraction = 0.7;
   NumericType etchRate = -1.86;
@@ -86,15 +86,15 @@ int main() {
             << " LS points" << std::endl;
 
   // levelSet->print();
-  lsToSurfaceMesh<NumericType, D>(levelSet, mesh).apply();
-  lsVTKWriter(mesh, "surface.vtp").apply();
-  // lsToMesh<NumericType, D>(levelSet, mesh).apply();
-  // lsVTKWriter(mesh, "points-1.vtp").apply();
+  ToSurfaceMesh<NumericType, D>(levelSet, mesh).apply();
+  VTKWriter(mesh, "surface.vtp").apply();
+  // ToMesh<NumericType, D>(levelSet, mesh).apply();
+  // VTKWriter(mesh, "points-1.vtp").apply();
 
   std::cout << "Making volume output...(this may take a while)" << std::endl;
 
   auto volumeMeshing =
-      lsSmartPointer<lsWriteVisualizationMesh<NumericType, D>>::New();
+      SmartPointer<WriteVisualizationMesh<NumericType, D>>::New();
   volumeMeshing->insertNextLevelSet(mask);
   volumeMeshing->insertNextLevelSet(levelSet);
   volumeMeshing->setFileName("bosch");

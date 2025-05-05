@@ -1,11 +1,11 @@
 #pragma once
 
 #include <lsBooleanOperation.hpp>
+#include <lsDomain.hpp>
 #include <lsMakeGeometry.hpp>
-#include <lsSmartPointer.hpp>
 
 template <class T, int D> class PillarMask {
-  using LSPtrType = lsSmartPointer<lsDomain<T, D>>;
+  using LSPtrType = viennals::SmartPointer<viennals::Domain<T, D>>;
   LSPtrType substrate;
   LSPtrType mask;
 
@@ -28,7 +28,7 @@ public:
     auto &grid = substrate->getGrid();
     auto &boundaryCons = grid.getBoundaryConditions();
     auto gridDelta = grid.getGridDelta();
-    hrleVectorType<T, 6> domainBounds;
+    viennacore::VectorType<T, 6> domainBounds;
     for (unsigned i = 0; i < 3; ++i) {
       domainBounds[2 * i] = grid.getMinLocalCoordinate(i);
       domainBounds[2 * i + 1] = grid.getMaxLocalCoordinate(i);
@@ -49,17 +49,19 @@ public:
     while (maskVec[1] < domainBounds[3]) {
       // std::cout << "maskVec: " << maskVec[0] << ", " << maskVec[1] <<
       // std::endl; make single cylinder at maskVec
-      auto maskSpot = lsSmartPointer<lsDomain<T, D>>::New(grid);
-      lsMakeGeometry<T, 3>(maskSpot, lsSmartPointer<lsSphere<T, D>>::New(
-                                         maskVec.data(), maskRadius))
+      auto maskSpot = LSPtrType::New(grid);
+      viennals::MakeGeometry<T, 3>(
+          maskSpot, viennals::SmartPointer<viennals::Sphere<T, D>>::New(
+                        maskVec.data(), maskRadius))
           .apply();
-      // lsMakeGeometry<T, 3>(maskSpot,
-      //                       lsSmartPointer<lsCylinder<T, D>>::New(
+      // viennals::MakeGeometry<T, 3>(maskSpot,
+      //                       viennals::SmartPointer<lsCylinder<T, D>>::New(
       //                           maskVec.data(), axis,
       //                           maskHeight + 2 * gridDelta, maskRadius))
       //     .apply();
       // add cylinder to whole mask
-      lsBooleanOperation<T, 3>(mask, maskSpot, lsBooleanOperationEnum::UNION)
+      viennals::BooleanOperation<T, 3>(mask, maskSpot,
+                                       viennals::BooleanOperationEnum::UNION)
           .apply();
 
       // advance maskVec in x direction
@@ -73,16 +75,18 @@ public:
     }
 
     // now make substrate level set
-    auto maskBottom = lsSmartPointer<lsDomain<T, 3>>::New(mask);
-    lsMakeGeometry<T, 3>(
-        maskBottom, lsSmartPointer<lsPlane<T, 3>>::New(maskOrigin.data(), axis))
+    auto maskBottom = viennals::SmartPointer<viennals::Domain<T, 3>>::New(mask);
+    viennals::MakeGeometry<T, 3>(
+        maskBottom, viennals::SmartPointer<viennals::Plane<T, 3>>::New(
+                        maskOrigin.data(), axis))
         .apply();
     substrate->deepCopy(maskBottom);
-    lsBooleanOperation<T, 3>(substrate, mask, lsBooleanOperationEnum::UNION)
+    viennals::BooleanOperation<T, 3>(substrate, mask,
+                                     viennals::BooleanOperationEnum::UNION)
         .apply();
-    lsBooleanOperation<T, 3>(maskBottom).apply(); // invert
-    lsBooleanOperation<T, 3>(mask, maskBottom,
-                             lsBooleanOperationEnum::INTERSECT)
+    viennals::BooleanOperation<T, 3>(maskBottom).apply(); // invert
+    viennals::BooleanOperation<T, 3>(mask, maskBottom,
+                                     viennals::BooleanOperationEnum::INTERSECT)
         .apply();
   }
 };

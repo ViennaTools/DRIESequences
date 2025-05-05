@@ -1,7 +1,8 @@
+#pragma once
+
 #include <array>
 
 #include <lsDomain.hpp>
-#include <lsSmartPointer.hpp>
 #include <lsToMesh.hpp>
 #include <lsToSurfaceMesh.hpp>
 #include <lsWriteVisualizationMesh.hpp>
@@ -12,7 +13,7 @@
 #include "lsBisect.hpp"
 
 template <class T, int D> class BoschProcess {
-  using LSPtrType = lsSmartPointer<lsDomain<T, D>>;
+  using LSPtrType = viennals::SmartPointer<viennals::Domain<T, D>>;
 
   LSPtrType substrate;
   LSPtrType mask;
@@ -141,18 +142,18 @@ public:
     std::cout << "x:   " << processData.taperRatio << std::endl;
     std::cout << "L_b: " << processData.trenchBottom << std::endl;
 
-    auto dist = lsSmartPointer<ViaDistribution<T, D>>::New(processData);
+    auto dist = viennals::SmartPointer<ViaDistribution<T, D>>::New(processData);
 
-    lsGeometricAdvect<T, D>(substrate, dist, mask).apply();
+    viennals::GeometricAdvect<T, D>(substrate, dist, mask).apply();
 
 #ifndef NDEBUG
     {
-      auto mesh = lsSmartPointer<lsMesh<T>>::New();
+      auto mesh = viennals::SmartPointer<viennals::Mesh<T>>::New();
       // lsToMesh<T, D>(substrate, mesh).apply();
       // lsVTKWriter(mesh, "points-0.vtp").apply();
-      lsToSurfaceMesh<T, D>(substrate, mesh).apply();
-      lsVTKWriter(mesh, "DEBUG_BoschProcess_0.vtp").apply();
-      auto writer = lsWriteVisualizationMesh<T, D>();
+      viennals::ToSurfaceMesh<T, D>(substrate, mesh).apply();
+      viennals::VTKWriter(mesh, "DEBUG_BoschProcess_0.vtp").apply();
+      auto writer = viennals::WriteVisualizationMesh<T, D>();
       writer.insertNextLevelSet(mask);
       writer.insertNextLevelSet(substrate);
       writer.setFileName("DEBUG_BoschProcess_v1");
@@ -162,22 +163,24 @@ public:
 #endif
 
     // Now make scallops on the sidewalls
-    auto boschDist = lsSmartPointer<BoschDistribution<T, D>>::New(processData);
+    auto boschDist =
+        viennals::SmartPointer<BoschDistribution<T, D>>::New(processData);
 
     // perform geometric advection
-    lsGeometricAdvect<T, D> fastAdvectKernel(substrate, boschDist, mask);
+    viennals::GeometricAdvect<T, D> fastAdvectKernel(substrate, boschDist,
+                                                     mask);
 
     fastAdvectKernel.apply();
 
 #ifndef NDEBUG
     {
       // substrate->print();
-      auto mesh = lsSmartPointer<lsMesh<T>>::New();
-      lsToSurfaceMesh<T, D>(substrate, mesh).apply();
-      lsVTKWriter(mesh, "DEBUG_BoschProcess_1.vtp").apply();
+      auto mesh = viennals::SmartPointer<viennals::Mesh<T>>::New();
+      viennals::ToSurfaceMesh<T, D>(substrate, mesh).apply();
+      viennals::VTKWriter(mesh, "DEBUG_BoschProcess_1.vtp").apply();
       // lsToMesh<T, D>(substrate, mesh).apply();
       // lsVTKWriter(mesh, "points-1.vtp").apply();
-      auto writer = lsWriteVisualizationMesh<T, D>();
+      auto writer = viennals::WriteVisualizationMesh<T, D>();
       writer.insertNextLevelSet(mask);
       writer.insertNextLevelSet(substrate);
       writer.setFileName("DEBUG_BoschProcess_v2");

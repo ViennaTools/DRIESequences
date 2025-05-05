@@ -2,25 +2,22 @@
 
 This repository contains geometric models for several different DRIE processes.
 
-## Dependencies
+## Dependencies (install automatically)
 
 * [ViennaLS](https://github.com/ViennaTools/viennals)
 
 ## Usage
 
-The CMake configuration automatically checks if ViennaLS is installed. If CMake is unable to find it, the dependency will be built from source with the _buildDependencies_ target.
 
 ```bash
-mkdir build && cd build
-cmake .. -DCMAKE_INSTALL_PREFIX=/path/to/your/ViennaLS/install/
-make buildDependencies # this will install all dependencies and might take a while
-cmake .. # this is only necessary if ViennaLS is installed with make buildDependencies
-make
+cmake -B build
+cmake --build build
 ```
 
 Execute the models by running:
 
 ```bash
+cd build
 ./DEM2D
 ./DEM3D
 ./DREM3D

@@ -1,12 +1,13 @@
 #pragma once
 
+#include <hrleTypes.hpp>
 #include <lsGeometricAdvectDistributions.hpp>
 
 #include "BoschProcessData.hpp"
 
 template <class T, int D>
-class ViaDistribution : public lsGeometricAdvectDistribution<T, D> {
-  double getDepth(const std::array<hrleCoordType, 3> &initial) const {
+class ViaDistribution : public viennals::GeometricAdvectDistribution<T, D> {
+  double getDepth(const std::array<viennahrle::CoordType, 3> &initial) const {
     if (!isTapering ||
         std::abs(data.taperStart) > std::abs(data.trenchBottom)) {
       return data.trenchBottom;
@@ -36,8 +37,8 @@ public:
       : data(processData), taperDepth(data.trenchBottom - data.taperStart),
         isTapering(data.sidewallTapering) {}
 
-  bool isInside(const std::array<hrleCoordType, 3> &initial,
-                const std::array<hrleCoordType, 3> &candidate,
+  bool isInside(const std::array<viennahrle::CoordType, 3> &initial,
+                const std::array<viennahrle::CoordType, 3> &candidate,
                 double eps = 0.) const override {
     for (unsigned i = 0; i < D - 1; ++i) {
       if (std::abs(candidate[i] - initial[i]) > (data.gridDelta + eps)) {
@@ -51,8 +52,8 @@ public:
     return true;
   }
 
-  T getSignedDistance(const std::array<hrleCoordType, 3> &initial,
-                      const std::array<hrleCoordType, 3> &candidate,
+  T getSignedDistance(const std::array<viennahrle::CoordType, 3> &initial,
+                      const std::array<viennahrle::CoordType, 3> &candidate,
                       unsigned long initialPointId) const override {
     T distance = std::numeric_limits<T>::lowest();
     for (unsigned i = 0; i < D - 1; ++i) {
@@ -65,8 +66,8 @@ public:
     return (data.trenchBottom < 0) ? -distance : distance;
   }
 
-  std::array<hrleCoordType, 6> getBounds() const override {
-    std::array<hrleCoordType, 6> bounds = {};
+  std::array<viennahrle::CoordType, 6> getBounds() const override {
+    std::array<viennahrle::CoordType, 6> bounds = {};
     for (unsigned i = 0; i < D - 1; ++i) {
       bounds[2 * i] = -data.gridDelta * ((data.trenchBottom < 0) ? -1 : 1);
       bounds[2 * i + 1] = data.gridDelta * ((data.trenchBottom < 0) ? -1 : 1);

@@ -1,9 +1,9 @@
 #pragma once
 
-#include <lsSmartPointer.hpp>
+#include <lsDomain.hpp>
 
 template <class T, int D> class MakeMask {
-  using LSPtrType = lsSmartPointer<lsDomain<T, D>>;
+  using LSPtrType = viennals::SmartPointer<viennals::Domain<T, D>>;
   LSPtrType substrate;
   LSPtrType mask;
 
@@ -34,56 +34,62 @@ public:
       T origin[3] = {0., (D == 2) ? maskHeight : 0.,
                      (D == 3) ? maskHeight : 0.};
 
-      lsMakeGeometry<T, D>(mask,
-                           lsSmartPointer<lsPlane<T, D>>::New(origin, normal))
+      viennals::MakeGeometry<T, D>(
+          mask,
+          viennals::SmartPointer<viennals::Plane<T, D>>::New(origin, normal))
           .apply();
       normal[D - 1] = -1.0;
       origin[D - 1] = 0.;
-      auto maskBottom = lsSmartPointer<lsDomain<T, D>>::New(grid);
-      lsMakeGeometry<T, D>(maskBottom,
-                           lsSmartPointer<lsPlane<T, D>>::New(origin, normal))
+      auto maskBottom =
+          viennals::SmartPointer<viennals::Domain<T, D>>::New(grid);
+      viennals::MakeGeometry<T, D>(
+          maskBottom,
+          viennals::SmartPointer<viennals::Plane<T, D>>::New(origin, normal))
           .apply();
-      lsBooleanOperation<T, D>(mask, maskBottom,
-                               lsBooleanOperationEnum::INTERSECT)
+      viennals::BooleanOperation<T, D>(
+          mask, maskBottom, viennals::BooleanOperationEnum::INTERSECT)
           .apply();
 
-      // auto mesh = lsSmartPointer<lsMesh<NumericType>>::New();
+      // auto mesh = viennals::SmartPointer<lsMesh<NumericType>>::New();
       // lsToMesh<T, D>(mask, mesh).apply();
       // lsVTKWriter(mesh, "Plane.vtp").apply();
 
-      auto maskHole = lsSmartPointer<lsDomain<T, D>>::New(grid);
+      auto maskHole = viennals::SmartPointer<viennals::Domain<T, D>>::New(grid);
 
       if constexpr (D == 3) {
         maskOrigin[2] = origin[2] - gridDelta;
         // maskRadius = extent / 2.0;
         double axis[3] = {0.0, 0.0, 1.0};
-        lsMakeGeometry<T, D>(maskHole,
-                             lsSmartPointer<lsCylinder<T, D>>::New(
-                                 maskOrigin.data(), axis,
-                                 maskHeight + 2 * gridDelta, maskRadius))
+        viennals::MakeGeometry<T, D>(
+            maskHole, viennals::SmartPointer<viennals::Cylinder<T, D>>::New(
+                          maskOrigin.data(), axis, maskHeight + 2 * gridDelta,
+                          maskRadius))
             .apply();
       } else {
         // double minScalar = origin[D-1] - 2 * gridDelta;
         // maskRadius = extent / 2.0;
         double min[3] = {-maskRadius, -gridDelta};
         double max[3] = {maskRadius, maskHeight + 2 * gridDelta};
-        lsMakeGeometry<T, D>(maskHole,
-                             lsSmartPointer<lsBox<T, D>>::New(min, max))
+        viennals::MakeGeometry<T, D>(
+            maskHole,
+            viennals::SmartPointer<viennals::Box<T, D>>::New(min, max))
             .apply();
       }
 
-      lsBooleanOperation<T, D>(mask, maskHole,
-                               lsBooleanOperationEnum::RELATIVE_COMPLEMENT)
+      viennals::BooleanOperation<T, D>(
+          mask, maskHole, viennals::BooleanOperationEnum::RELATIVE_COMPLEMENT)
           .apply();
 
       // lsToSurfaceMesh<T, D>(mask, mesh).apply();
       // lsVTKWriter(mesh, "Mask.vtp").apply();
 
       // make substrate
-      lsBooleanOperation<T, D>(maskBottom, lsBooleanOperationEnum::INVERT)
+      viennals::BooleanOperation<T, D>(maskBottom,
+                                       viennals::BooleanOperationEnum::INVERT)
           .apply();
       substrate->deepCopy(maskBottom);
-      lsBooleanOperation<T, D>(substrate, mask, lsBooleanOperationEnum::UNION)
+      viennals::BooleanOperation<T, D>(substrate, mask,
+                                       viennals::BooleanOperationEnum::UNION)
           .apply();
     }
   }
